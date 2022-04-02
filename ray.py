@@ -66,19 +66,19 @@ class BouncingRay(Ray):
 
 
 def main():
-    import sys
+    import sys, time
     from random import randint
 
     WIN_WIDTH = 900
     WIN_HEIGHT = 900
     MAX_BOUNCES = 10
-    WALLS = 5
+    MAX_WALLS = 5
 
 
     win=pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 
     ray = BouncingRay((WIN_WIDTH//2,WIN_HEIGHT//2), (1, 0), MAX_BOUNCES)  
-    walls=[((randint(0, WIN_WIDTH),randint(0, WIN_HEIGHT)), (randint(0, WIN_WIDTH),randint(0, WIN_HEIGHT))) for _ in range(WALLS)]
+    walls=[((randint(0, WIN_WIDTH),randint(0, WIN_HEIGHT)), (randint(0, WIN_WIDTH),randint(0, WIN_HEIGHT))) for _ in range(MAX_WALLS)]
     
     #Add window borders as walls
     walls+=[
@@ -89,12 +89,15 @@ def main():
         ]
 
     clock = pygame.time.Clock()
+    last_time = time.time()
 
     pygame.font.init()
     font = pygame.font.SysFont("Comic Sans MS", 20)
 
     while True:
         clock.tick()
+        dt = time.time() - last_time
+        last_time = time.time()
         
         ray.look_at(*pygame.mouse.get_pos())
         for event in pygame.event.get():
@@ -104,14 +107,14 @@ def main():
         keys = pygame.key.get_pressed()
 
 		# movement input
-        if keys[pygame.K_UP]: 
-            ray.pos.y += -1
-        elif keys[pygame.K_DOWN]: 
-            ray.pos.y += 1
-        if keys[pygame.K_RIGHT]: 
-            ray.pos.x += 1
-        elif keys[pygame.K_LEFT]: 
-            ray.pos.x += -1
+        if keys[pygame.K_UP] or keys[pygame.K_w]: 
+            ray.pos.y += -300*dt
+        elif keys[pygame.K_DOWN] or keys[pygame.K_s]: 
+            ray.pos.y += 300*dt
+        if keys[pygame.K_RIGHT] or keys[pygame.K_d]: 
+            ray.pos.x += 300*dt
+        elif keys[pygame.K_LEFT] or keys[pygame.K_a]: 
+            ray.pos.x += -300*dt
         
         win.fill((0, 0, 0))
 
@@ -119,7 +122,7 @@ def main():
             pygame.draw.aaline(win, (255, 255, 0), *wall)
         rays=ray.cast(walls)
         if (len(rays)>1): 
-            pygame.draw.aalines(win, (255, 255, 255), False, [ray.pos for ray in rays]+[rays[-1].pos+rays[-1].dir*1000])
+            pygame.draw.aalines(win, (255, 255, 255), False, [ray.pos for ray in rays]+[rays[-1].pos+rays[-1].dir*1])
 
 
         pygame.draw.circle(win, (255, 255, 255), ray.pos, 5)
