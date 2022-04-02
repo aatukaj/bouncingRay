@@ -12,8 +12,9 @@ class Ray:
         self.dir.normalize_ip()
 
 
-    #Returns the point of intersection and the intersected wall and  in a tuple
+    
     def cast(self, walls):
+        """Returns the closest point of intersection and the intersected wall in a tuple."""
         record=float('inf')
         closest=None
         for wall in walls:
@@ -78,6 +79,7 @@ def main():
     win=pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 
     ray = BouncingRay((WIN_WIDTH//2,WIN_HEIGHT//2), (1, 0), MAX_BOUNCES)  
+
     walls=[((randint(0, WIN_WIDTH),randint(0, WIN_HEIGHT)), (randint(0, WIN_WIDTH),randint(0, WIN_HEIGHT))) for _ in range(MAX_WALLS)]
     
     #Add window borders as walls
