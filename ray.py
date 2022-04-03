@@ -1,5 +1,8 @@
 
 import pygame
+import pygame_gui
+import sys, time
+from random import randint
 
 class Ray:
     def __init__(self, pos, dir):
@@ -40,6 +43,7 @@ class Ray:
                     closest=pt, wall
                     
         return closest
+        
     def __repr__(self):
         return f"{self.pos}, {self.dir}"
 
@@ -66,29 +70,54 @@ class BouncingRay(Ray):
         return rays
 
 
+def random_wall(w, h):
+    return ((randint(0, w),randint(0, h)), (randint(0, w),randint(0, h)))
+    
+def generate_walls(max_walls, w, h):
+    return [random_wall(w, h) for _ in range(max_walls)]
+
+
+
 def main():
-    import sys, time
-    from random import randint
+    pygame.init()
 
     WIN_WIDTH = 900
     WIN_HEIGHT = 900
     MAX_BOUNCES = 10
-    MAX_WALLS = 5
+    
 
 
     win=pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+    win_walls=[
+        ((WIN_WIDTH, WIN_HEIGHT), (WIN_HEIGHT, 0)),
+        ((WIN_WIDTH, WIN_HEIGHT), (0, WIN_HEIGHT)), 
+        ((0, 0), (0, WIN_HEIGHT)), 
+        ((0, 0), (WIN_WIDTH, 0))
+        ]
+    manager = pygame_gui.UIManager((WIN_WIDTH, WIN_HEIGHT))
+
+    genwalls_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((WIN_WIDTH-200, WIN_HEIGHT-25), (200, 25)),
+                                             text='Regenerate walls',
+                                             manager=manager)
+
+    bounces_slider = pygame_gui.elements.UIHorizontalSlider(
+        relative_rect=pygame.Rect((0, WIN_HEIGHT-25), (300, 25)), 
+        start_value=10,
+        value_range=(0, 40),     
+        manager=manager)
+
+    maxwalls_slider = pygame_gui.elements.UIHorizontalSlider(
+        relative_rect=pygame.Rect((300, WIN_HEIGHT-25), (300, 25)), 
+        start_value=10,
+        value_range=(0, 20),     
+        manager=manager)
+    
+
+    MAX_WALLS = maxwalls_slider.get_current_value()
 
     ray = BouncingRay((WIN_WIDTH//2,WIN_HEIGHT//2), (1, 0), MAX_BOUNCES)  
 
-    walls=[((randint(0, WIN_WIDTH),randint(0, WIN_HEIGHT)), (randint(0, WIN_WIDTH),randint(0, WIN_HEIGHT))) for _ in range(MAX_WALLS)]
-    
-    #Add window borders as walls
-    walls+=[
-        ((WIN_WIDTH, WIN_HEIGHT), (WIN_WIDTH, 0)),
-        ((WIN_WIDTH, WIN_HEIGHT), (0, WIN_HEIGHT)), 
-        ((-1, 0), (-1, WIN_HEIGHT)), 
-        ((0, 0), (WIN_WIDTH, 0))
-        ]
+    walls=generate_walls(MAX_WALLS, WIN_WIDTH, WIN_HEIGHT)
 
     clock = pygame.time.Clock()
     last_time = time.time()
@@ -97,15 +126,39 @@ def main():
     font = pygame.font.SysFont("Comic Sans MS", 20)
 
     while True:
+        win.fill((0, 0, 0))
         clock.tick()
         dt = time.time() - last_time
         last_time = time.time()
-        
-        ray.look_at(*pygame.mouse.get_pos())
+
+        mpos=pygame.mouse.get_pos()
+        if mpos[1]<WIN_HEIGHT-35:
+            ray.look_at(*pygame.mouse.get_pos())
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                if event.ui_element == genwalls_button:
+                    walls=generate_walls(MAX_WALLS, WIN_WIDTH, WIN_HEIGHT)
+
+            if event.type == pygame_gui.UI_HORIZONTAL_SLIDER_MOVED:
+                if event.ui_element == bounces_slider:
+                    ray.max_bounces=round(bounces_slider.get_current_value())
+                if event.ui_element == maxwalls_slider:
+                    val=round(maxwalls_slider.get_current_value())
+                    if val > MAX_WALLS:
+                        walls.append(random_wall(WIN_WIDTH, WIN_HEIGHT))
+                    elif val < MAX_WALLS:
+                        walls.pop(0)
+                    MAX_WALLS=val
+                    
+             
+            manager.process_events(event)
+
+        manager.update(dt)
+
+        
         keys = pygame.key.get_pressed()
 
 		# movement input
@@ -118,19 +171,21 @@ def main():
         elif keys[pygame.K_LEFT] or keys[pygame.K_a]: 
             ray.pos.x += -300*dt
         
-        win.fill((0, 0, 0))
+        
 
         for wall in walls:
             pygame.draw.aaline(win, (255, 255, 0), *wall)
-        rays=ray.cast(walls)
+        rays=ray.cast(walls+win_walls)
         if (len(rays)>1): 
             pygame.draw.aalines(win, (255, 255, 255), False, [ray.pos for ray in rays]+[rays[-1].pos+rays[-1].dir*1])
 
 
+
         pygame.draw.circle(win, (255, 255, 255), ray.pos, 5)
         win.blit(font.render(f"FPS : {round(clock.get_fps())}", False, (255, 255, 255)), (0,0))
-        
+        manager.draw_ui(win)
         pygame.display.update()
 
 if __name__ == "__main__":
     main()
+
