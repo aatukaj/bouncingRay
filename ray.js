@@ -99,9 +99,7 @@ class Wall {
         pop();
     }
 }
-let walls = [];
-let win_walls = [];
-let obstacles;
+
 
 function arrayRemove(arr, value) {
 
@@ -111,8 +109,58 @@ function arrayRemove(arr, value) {
 }
 
 function inBounds(x, y) {
-    return (x>=0 && y>=0 && x<=width && y<=height);
+    return (x >= 0 && y >= 0 && x <= width && y <= height);
 }
+
+function randomWall(w, h) {
+    return new Wall(random(w), random(h), random(w), random(h));
+}
+
+function generateWalls(max_walls) {
+    let walls = [];
+    for (let i = 0; i < max_walls; i++) {
+        walls[i] = randomWall(width, height);
+    }
+    return walls
+}
+
+
+let walls = [];
+let win_walls = [];
+let obstacles;
+let bouncingRay;
+
+window.onload = function () {
+    let max_bounces_slider = document.getElementById("max_bounces");
+    let max_bounces_output = document.getElementById("max_bounces_value");
+
+    max_bounces_output.innerHTML = max_bounces_slider.value;
+    max_bounces_slider.oninput = function () {
+        max_bounces_output.innerHTML = this.value;
+        bouncingRay.max_bounces = this.value;
+    }
+
+    let walls_slider = document.getElementById("walls");
+    let walls_output = document.getElementById("walls_value");
+
+    walls_output.innerHTML = walls_slider.value;
+    walls_slider.oninput = function () {
+        let prev = walls_output.innerHTML;
+        if (prev < this.value) {
+            walls.push(randomWall(width, height));
+        } else if (prev > this.value) {
+            walls.shift();
+        }
+        walls_output.innerHTML = this.value;
+    }
+    let gen_walls_button = document.getElementById("gen_walls");
+    gen_walls_button.onclick = function () {
+        walls = generateWalls(walls_slider.value);
+    }
+
+};
+
+
 
 function setup() {
     createCanvas(800, 800);
@@ -123,22 +171,19 @@ function setup() {
         new Wall(0, 0, 0, height),
         new Wall(0, 0, width, 0)
     ];
-    for (let i = 0; i < 5; i++) {
-        walls[i] = new Wall(random(width), random(height), random(width), random(height));
-    }
-    obstacles = walls.concat(win_walls);
+    walls = generateWalls(5);
 }
 
 function mouseClicked() {
     if (inBounds(mouseX, mouseY)) {
         bouncingRay.pos = createVector(mouseX, mouseY);
     }
-    
+
 }
 
 function draw() {
     background(0);
-    let rays = bouncingRay.cast(obstacles);
+    let rays = bouncingRay.cast(walls.concat(win_walls));
     if (rays) {
         stroke(255);
         for (let i = 0; i < rays.length - 1; i++) {
@@ -147,9 +192,10 @@ function draw() {
         for (let ray of rays) {
             ellipse(ray.pos.x, ray.pos.y, 5, 5);
         }
-    console.log(inBounds(mouseX, mouseY));
     }
-    bouncingRay.look_at(mouseX, mouseY);
+    if (inBounds(mouseX, mouseY)) {
+        bouncingRay.look_at(mouseX, mouseY);
+    }
     for (wall of walls) {
         wall.draw();
     }

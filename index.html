@@ -1,21 +1,54 @@
 <html>
-  <head>
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.4.1/lib/p5.js"></script>
-    <script src="ray.js"></script>
-    <style>
-      canvas {
+
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/p5@1.4.1/lib/p5.js"></script>
+  <script src="ray.js"></script>
+  <style>
+    canvas {
       padding-left: 0;
       padding-right: 0;
       margin-left: auto;
       margin-right: auto;
       display: block;
-      width: 800px;
     }
-    </style>
-    
-  </head>
-  <body>
-    <main>
-    </main>
-  </body>
+
+    .flex-container {
+      padding-left: 0;
+      padding-right: 0;
+      margin-left: auto;
+      margin-right: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .flex-container>div {
+      background-color: #f1f1f1;
+      margin: 10px;
+      padding: 20px;
+      font-size: 15px;
+    }
+  </style>
+
+</head>
+
+<body>
+  <main>
+  </main>
+  <div class="flex-container">
+    <div>
+      <input type="range" min="0" max="50" value="5" step="1" id="max_bounces">
+      <div>Max Bounces: <span id="max_bounces_value"></span></div>
+    </div>
+    <div>
+      <input type="range" min="0" max="20" value="5" step="1" id="walls">
+      <div>Walls: <span id="walls_value"></span></div>
+    </div>
+    <div>
+      <input type="button" value="Regenerate walls" id="gen_walls">
+    </div>
+    <div>Mouse click <br> to move ray position</div>
+  </div>
+</body>
+
 </html>
