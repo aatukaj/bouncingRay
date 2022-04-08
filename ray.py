@@ -90,7 +90,7 @@ def main():
 
     win=pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
     win_walls=[
-        ((WIN_WIDTH, WIN_HEIGHT), (WIN_HEIGHT, 0)),
+        ((WIN_WIDTH, WIN_HEIGHT), (WIN_WIDTH, 0)),
         ((WIN_WIDTH, WIN_HEIGHT), (0, WIN_HEIGHT)), 
         ((0, 0), (0, WIN_HEIGHT)), 
         ((0, 0), (WIN_WIDTH, 0))

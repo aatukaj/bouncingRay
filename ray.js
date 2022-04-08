@@ -10,10 +10,10 @@ class Ray {
         this.dir.y = y - this.pos.y;
         this.dir.normalize();
     }
-    cast(walls) {
+    cast(obstacles) {
         let record = Infinity;
         let result;
-        for (let wall of walls) {
+        for (let wall of obstacles) {
             const x1 = wall.a.x;
             const y1 = wall.a.y;
             const x2 = wall.b.x;
@@ -62,28 +62,23 @@ class BouncingRay extends Ray {
         super(x, y, dx, dy);
         this.max_bounces = max_bounces;
     }
-    bcast(walls) {
+    cast(obstacles) {
         let rays = [new Ray(this.pos.x, this.pos.y, this.dir.x, this.dir.y)]
         let prev_wall;
         for (let i = 0; i < this.max_bounces; i++) {
-            let temp = [...walls]
+            let temp = [...obstacles]
             if (prev_wall) {
-                const index = temp.indexOf(prev_wall);
-                if (index > -1) {
-                    temp.splice(index, 1);
-                }
+                temp = arrayRemove(obstacles, prev_wall);
             }
-            let ray = rays[rays.length - 1]
+            let ray = rays[rays.length - 1];
             let result = ray.cast(temp);
-            console.log(i);
             if (result) {
-
                 prev_wall = result.wall;
-                normal = createVector(-(result.wall.a.y - result.wall.b.y), result.wall.a.x - result.wall.b.x);
-                normal.normalize();
-                let dir = ray.dir.copy()
-                dir.reflect(normal);
-                rays.push(new Ray(...result.point.array(), ...dir.array()))
+                let n = createVector(-(result.wall.a.y - result.wall.b.y), result.wall.a.x - result.wall.b.x);
+                n.normalize();
+                let dir = ray.dir.copy();
+                dir.reflect(n);
+                rays.push(new Ray(result.point.x, result.point.y, dir.x, dir.y));
             }
 
         }
@@ -98,13 +93,15 @@ class Wall {
         this.b = createVector(bx, by);
     }
     draw() {
-        stroke(255);
+        stroke(255, 255, 0);
         push();
         line(this.a.x, this.a.y, this.b.x, this.b.y);
         pop();
     }
 }
 let walls = [];
+let win_walls =[];
+let obstacles;
 
 function arrayRemove(arr, value) {
 
@@ -115,28 +112,34 @@ function arrayRemove(arr, value) {
 
 function setup() {
     createCanvas(800, 800);
-    bray = new BouncingRay(400, 400, 1, 0, 5);
-
+    bouncingRay = new BouncingRay(400, 400, 1, 0, 5);
+    win_walls =[
+        new Wall(width, height, width, 0),
+        new Wall(width, height, 0, height),
+        new Wall(0, 0, 0, height),
+        new Wall(0, 0, width, 0)
+    ];
     for (let i = 0; i < 5; i++) {
         walls[i] = new Wall(random(width), random(height), random(width), random(height));
     }
+    obstacles = walls.concat(win_walls);
 }
 
 function draw() {
     background(0);
-    let rays = bray.bcast(walls);
+    let rays = bouncingRay.cast(obstacles);
     if (rays) {
-        for (ray of rays){
-            ray.draw()
+        stroke(255);
+        for (let i = 0; i < rays.length - 1; i++) {
+            line(rays[i].pos.x, rays[i].pos.y, rays[i + 1].pos.x, rays[i + 1].pos.y);
         }
-        
-
-        bray.look_at(mouseX, mouseY);
-
+        for (let ray of rays) {
+            ellipse(ray.pos.x, ray.pos.y, 5, 5);
+        }
 
     }
+    bouncingRay.look_at(mouseX, mouseY);
     for (wall of walls) {
         wall.draw();
     }
-
 }
