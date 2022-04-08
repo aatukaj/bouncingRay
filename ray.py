@@ -1,13 +1,14 @@
 
 import pygame
+from pygame.math import Vector2
 import pygame_gui
 import sys, time
 from random import randint
 
 class Ray:
     def __init__(self, pos, dir):
-        self.pos = pygame.Vector2(pos)
-        self.dir = pygame.Vector2(dir)
+        self.pos = Vector2(pos)
+        self.dir = Vector2(dir)
 
     def look_at(self, x, y):
         self.dir.x = x-self.pos.x     
@@ -29,12 +30,12 @@ class Ray:
 
             den = (x1-x2)*(y3-y4)-(y1-y2)*(x3-x4)
             if den == 0:
-                return
+                continue
 
             t = ((x1-x3)*(y3-y4)-(y1-y3)*(x3-x4)) / den
             u = -((x1-x2)*(y1-y3)-(y1-y2)*(x1-x3)) / den
             if t >= 0 and t <= 1 and u>=0:
-                pt = pygame.Vector2()
+                pt = Vector2()
                 pt.x = x1+t*(x2-x1)
                 pt.y = y1+t*(y2-y1)
                 d=pt.distance_to(self.pos)
@@ -65,7 +66,7 @@ class BouncingRay(Ray):
                 lastwall = result[1]
                 x1, y1= result[1][0]
                 x2, y2= result[1][1]
-                normal = pygame.Vector2(-(y1-y2), x1-x2).normalize()
+                normal = Vector2(-(y1-y2), x1-x2).normalize()
                 rays.append(Ray(result[0], rays[-1].dir.reflect(normal)))
         return rays
 
