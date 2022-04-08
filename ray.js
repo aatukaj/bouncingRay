@@ -100,7 +100,7 @@ class Wall {
     }
 }
 let walls = [];
-let win_walls =[];
+let win_walls = [];
 let obstacles;
 
 function arrayRemove(arr, value) {
@@ -110,10 +110,14 @@ function arrayRemove(arr, value) {
     });
 }
 
+function inBounds(x, y) {
+    return (x>=0 && y>=0 && x<=width && y<=height);
+}
+
 function setup() {
     createCanvas(800, 800);
     bouncingRay = new BouncingRay(400, 400, 1, 0, 5);
-    win_walls =[
+    win_walls = [
         new Wall(width, height, width, 0),
         new Wall(width, height, 0, height),
         new Wall(0, 0, 0, height),
@@ -123,6 +127,13 @@ function setup() {
         walls[i] = new Wall(random(width), random(height), random(width), random(height));
     }
     obstacles = walls.concat(win_walls);
+}
+
+function mouseClicked() {
+    if (inBounds(mouseX, mouseY)) {
+        bouncingRay.pos = createVector(mouseX, mouseY);
+    }
+    
 }
 
 function draw() {
@@ -136,7 +147,7 @@ function draw() {
         for (let ray of rays) {
             ellipse(ray.pos.x, ray.pos.y, 5, 5);
         }
-
+    console.log(inBounds(mouseX, mouseY));
     }
     bouncingRay.look_at(mouseX, mouseY);
     for (wall of walls) {
