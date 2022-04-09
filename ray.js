@@ -1,4 +1,3 @@
-//gAMing
 class Ray {
     constructor(x, y, dx, dy) {
         this.pos = createVector(x, y);
