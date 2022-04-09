@@ -130,11 +130,11 @@ let win_walls = [];
 let obstacles;
 let bouncingRay;
 
-window.onload = function () {
+window.onload = () => {
     let max_bounces_slider = document.getElementById("max_bounces");
     let max_bounces_output = document.getElementById("max_bounces_value");
-
     max_bounces_output.innerHTML = max_bounces_slider.value;
+    
     max_bounces_slider.oninput = function () {
         max_bounces_output.innerHTML = this.value;
         bouncingRay.max_bounces = this.value;
@@ -142,18 +142,20 @@ window.onload = function () {
 
     let walls_slider = document.getElementById("walls");
     let walls_output = document.getElementById("walls_value");
-
     walls_output.innerHTML = walls_slider.value;
-    walls_slider.oninput = function () {
-        let prev = walls_output.innerHTML;
-        if (prev < this.value) {
-            walls.push(randomWall(width, height));
-        } else if (prev > this.value) {
-            walls.shift();
+
+    walls_slider.oninput = function() {
+        const dif = Math.abs(this.value-walls.length);
+        if (this.value > walls.length) {
+            walls.push(...generateWalls(dif));
+        } else if (this.value < walls.length) {
+            walls.splice(0, dif);
         }
         walls_output.innerHTML = this.value;
     }
+
     let gen_walls_button = document.getElementById("gen_walls");
+
     gen_walls_button.onclick = function () {
         walls = generateWalls(walls_slider.value);
     }
