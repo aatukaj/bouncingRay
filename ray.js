@@ -92,7 +92,7 @@ class Wall {
         this.b = createVector(bx, by);
     }
     draw() {
-        stroke(255, 255, 0);
+        stroke(255);
         push();
         line(this.a.x, this.a.y, this.b.x, this.b.y);
         pop();
@@ -126,7 +126,7 @@ function generateWalls(max_walls) {
 
 let walls = [];
 let win_walls = [];
-let obstacles;
+let obstacles = [];
 let bouncingRay;
 
 window.onload = () => {
@@ -186,7 +186,7 @@ function draw() {
     background(0);
     let rays = bouncingRay.cast(walls.concat(win_walls));
     if (rays) {
-        stroke(255);
+        stroke(46, 132, 255);
         for (let i = 0; i < rays.length - 1; i++) {
             line(rays[i].pos.x, rays[i].pos.y, rays[i + 1].pos.x, rays[i + 1].pos.y);
         }

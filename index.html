@@ -4,12 +4,18 @@
   <script src="https://cdn.jsdelivr.net/npm/p5@1.4.1/lib/p5.js"></script>
   <script src="ray.js"></script>
   <style>
+    body {
+      background: rgb(0,0,0);
+      background: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(46,132,255,1) 50%, rgba(0,0,0,1) 100%);
+    }
+
     canvas {
       padding-left: 0;
       padding-right: 0;
       margin-left: auto;
       margin-right: auto;
       display: block;
+      border-radius: 5px;
     }
 
     .flex-container {
@@ -18,16 +24,23 @@
       margin-left: auto;
       margin-right: auto;
       display: flex;
-      align-items: center;
+      align-items: stretch;
       justify-content: center;
+
     }
 
+    .flex-container-item,
     .flex-container>div {
-      background-color: #f1f1f1;
       margin: 10px;
       padding: 20px;
       font-size: 15px;
+      border-radius: 10px;
+      border-style: solid;
+      border-color: black;
+      border-width: 1px 1px;
+      background-color: #f1f1f1;
     }
+
   </style>
 
 </head>
@@ -44,9 +57,9 @@
       <input type="range" min="0" max="20" value="5" step="1" id="walls">
       <div>Walls: <span id="walls_value"></span></div>
     </div>
-    <div>
-      <input type="button" value="Regenerate walls" id="gen_walls">
+    <div> <input type="button" value="Regenerate walls" id="gen_walls">
     </div>
+
     <div>Mouse click <br> to move ray position</div>
   </div>
 </body>
